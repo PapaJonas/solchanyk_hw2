@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+dataset_yolo/
+eda_figs/
+*.pt
+*.pth
+*.pkl
+*.zip
+wandb/
+runs/

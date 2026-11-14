@@ -1,0 +1,1 @@
+id,family,model,change,imgsz,epochs,mAP,AP50,AP75,AP_small,AP_medium,AP_large,FPS,public_LB,wandb_run,notes

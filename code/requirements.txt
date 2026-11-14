@@ -1,0 +1,13 @@
+# local CPU (EDA, post-processing, report figures)
+numpy
+pandas
+matplotlib
+opencv-python
+scikit-learn
+pycocotools
+jupyterlab
+# Kaggle GPU (models); pin the exact versions printed by the first Kaggle run
+ultralytics
+torch
+torchvision
+wandb
