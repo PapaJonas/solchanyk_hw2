@@ -1,1 +1,2 @@
 id,family,model,change,imgsz,epochs,mAP,AP50,AP75,AP_small,AP_medium,AP_large,FPS,public_LB,wandb_run,notes
+A0_yolo11s_1024,anchor_free,yolo11s,baseline,1024,10,0.1822,0.3608,0.1588,0.1064,0.1808,0.2805,50.7,0.2780,A0_yolo11s_1024_eval,
