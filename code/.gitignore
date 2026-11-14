@@ -8,4 +8,4 @@ eda_figs/
 *.pkl
 *.zip
 wandb/
-runs/
+/runs/
