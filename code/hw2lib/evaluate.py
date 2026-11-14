@@ -78,10 +78,13 @@ class Evaluator:
             E.params.imgIds = self.img_ids
             E.params.maxDets = [1, 100, PROTOCOL["max_det"]]
             E.evaluate(); E.accumulate(); E.summarize()
-        s = E.stats  # AP metrics below use maxDets=500
-        m = dict(mAP=s[0], AP50=s[1], AP75=s[2], AP_small=s[3], AP_medium=s[4], AP_large=s[5],
-                 AR100=s[7], AR500=s[8])
+        s = E.stats
         prec = E.eval["precision"]  # [T(IoU), R, K(class), A(area), M(maxDets)]
+        p_all = prec[:, :, :, 0, -1]
+        # pycocotools hard-codes maxDets=100 for stats[0]; scenes have up to 180 objects, so mAP is taken
+        # from the precision array at maxDets=500 (stats[1..5] already use maxDets[-1]=500)
+        m = dict(mAP=float(p_all[p_all > -1].mean()), AP50=s[1], AP75=s[2], AP_small=s[3], AP_medium=s[4],
+                 AP_large=s[5], AR100=s[7], AR500=s[8])
         for k, n in enumerate(NAMES):
             p = prec[:, :, k, 0, -1]
             m[f"AP_{n}"] = float(p[p > -1].mean()) if (p > -1).any() else float("nan")
@@ -116,3 +119,16 @@ def save_run(out_dir, name, metrics, val_preds=None, test_preds=None, config=Non
                        for k, (b, s, c) in p.items()}
             pickle.dump(compact, open(d / f"{tag}_preds.pkl", "wb"))
     return d
+
+
+EXPERIMENT_COLUMNS = ["id", "family", "model", "change", "imgsz", "epochs", "mAP", "AP50", "AP75",
+                      "AP_small", "AP_medium", "AP_large", "FPS", "public_LB", "wandb_run", "notes"]
+
+
+def experiment_row(id, family, model, change, imgsz, epochs, metrics, wandb_run="", notes="") -> str:
+    """One CSV line for code/results/experiments.csv (public_LB is filled in by hand after submitting)."""
+    vals = dict(id=id, family=family, model=model, change=change, imgsz=imgsz, epochs=epochs,
+                public_LB="", wandb_run=wandb_run, notes=notes)
+    for k in ["mAP", "AP50", "AP75", "AP_small", "AP_medium", "AP_large", "FPS"]:
+        vals[k] = f"{metrics.get(k, float('nan')):.4f}" if k != "FPS" else f"{metrics.get(k, float('nan')):.1f}"
+    return ",".join(str(vals[c]) for c in EXPERIMENT_COLUMNS)
