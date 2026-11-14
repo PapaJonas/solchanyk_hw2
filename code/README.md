@@ -1,5 +1,6 @@
 # Code — HW2 VisDrone video detection
 
+### Folders
 ```
 code/
 ├── hw2lib/                          спільний код для локальних ноутбуків (EDA, постпроцесинг)
