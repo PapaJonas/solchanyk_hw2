@@ -1,6 +1,8 @@
 id,family,model,change,imgsz,epochs,mAP,AP50,AP75,AP_small,AP_medium,AP_large,FPS,public_LB,wandb_run,notes
 A0_yolo11s_1024,anchor_free,yolo11s,baseline,1024,10,0.1822,0.3608,0.1588,0.1064,0.1808,0.2805,50.7,0.2780,A0_yolo11s_1024_eval,
-A1_yolo11s_1280,anchor_free,yolo11s,imgsz 1280,1280,10,0.1908,0.3787,0.1692,0.1110,0.1938,0.2892,48.4,,A1_yolo11s_1280_eval,
+A1_yolo11s_1280,anchor_free,yolo11s,imgsz 1280,1280,10,0.1908,0.3787,0.1692,0.1110,0.1938,0.2892,48.4,0.2850,A1_yolo11s_1280_eval,
 A2_yolo11s_p2_1024,anchor_free,yolo11s-p2,P2 head (stride 4),1024,10,0.1846,0.3657,0.1650,0.1078,0.1712,0.3166,41.5,0.1929,A2_yolo11s_p2_1024_eval,
 A3_yolo11m_1280,anchor_free,yolo11m,model m + imgsz 1280,1280,10,0.2281,0.4366,0.2059,0.1284,0.2082,0.3567,31.1,0.2097,A3_yolo11m_1280_eval,LB same after removing zero-height boxes (0.209)
 A4_yolo11s_p2_1280,anchor_free,yolo11s-p2,P2 head + imgsz 1280,1280,10,0.1952,0.3973,0.1706,0.1082,0.1818,0.3335,38.6,0.2503,A4_yolo11s_p2_1280_eval,
+Q0_rtdetr_l_1024,query_based,rtdetr-l,baseline (300 queries),1024,10,0.2683,0.5135,0.2450,0.1389,0.2310,0.4562,15.2,0.3102,Q0_rtdetr_l_1024_eval,
+Q1_rtdetr_l_nq500_1024,query_based,rtdetr-l-nq500,500 queries (scene density up to 180),1024,10,0.2613,0.4997,0.2409,0.1245,0.2255,0.4371,15.2,0.3242,Q1_rtdetr_l_nq500_1024_eval,
