@@ -6,3 +6,7 @@ A3_yolo11m_1280,anchor_free,yolo11m,model m + imgsz 1280,1280,10,0.2281,0.4366,0
 A4_yolo11s_p2_1280,anchor_free,yolo11s-p2,P2 head + imgsz 1280,1280,10,0.1952,0.3973,0.1706,0.1082,0.1818,0.3335,38.6,0.2503,A4_yolo11s_p2_1280_eval,
 Q0_rtdetr_l_1024,query_based,rtdetr-l,baseline (300 queries),1024,10,0.2683,0.5135,0.2450,0.1389,0.2310,0.4562,15.2,0.3102,Q0_rtdetr_l_1024_eval,
 Q1_rtdetr_l_nq500_1024,query_based,rtdetr-l-nq500,500 queries (scene density up to 180),1024,10,0.2613,0.4997,0.2409,0.1245,0.2255,0.4371,15.2,0.3242,Q1_rtdetr_l_nq500_1024_eval,
+T0_frcnn_1024,two_stage,fasterrcnn_r50_fpn_v2,baseline: anchors 32-512; RPN 2000/1000; RoI 512@0.25,1024,3,0.2148,0.4226,0.1893,0.0933,0.1910,0.4100,19.2,0.19,T0_frcnn_1024,
+R0_retina_1024,one_stage_anchor,retinanet_r50_fpn_v2,baseline: anchors 32-512 (x3 scales); GIoU loss,1024,3,0.1516,0.2890,0.1412,0.0549,0.1298,0.3197,26.9,,R0_retina_1024,
+R1_retina_anch8_1024,one_stage_anchor,retinanet_r50_fpn_v2,anchors 8-128 (x3 scales),1024,3,0.0618,0.1858,0.0267,0.0311,0.0598,0.1120,25.5,,R1_retina_anch8_1024,
+R2_retina_anch8_ciou_1024,one_stage_anchor,retinanet_r50_fpn_v2,R1 + CIoU loss,1024,3,0.0600,0.1840,0.0240,0.0324,0.0552,0.1126,25.9,,R2_retina_anch8_ciou_1024,

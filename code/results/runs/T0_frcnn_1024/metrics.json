@@ -1,0 +1,61 @@
+{
+ "run_id": "T0_frcnn_1024",
+ "RUN_ID": "T0_frcnn_1024",
+ "family": "frcnn",
+ "CHANGE": "baseline: anchors 32-512, RPN 2000/1000, RoI 512@0.25",
+ "lr": 0.005,
+ "anchor_sizes": [
+  32,
+  64,
+  128,
+  256,
+  512
+ ],
+ "rpn_pre": {
+  "training": 2000,
+  "testing": 1000
+ },
+ "rpn_post": {
+  "training": 2000,
+  "testing": 1000
+ },
+ "roi_batch": 512,
+ "roi_pos": 0.25,
+ "protocol": {
+  "train_step": 4,
+  "val_step": 2,
+  "train_max_side": 1600,
+  "seed": 0,
+  "conf": 0.001,
+  "max_det": 500,
+  "min_size": 576,
+  "max_size": 1024,
+  "epochs": 3,
+  "batch": 4,
+  "workers": 3
+ },
+ "debug": false,
+ "mAP": 0.21481557900886605,
+ "AP50": 0.4225877466682703,
+ "AP75": 0.18931219787969356,
+ "AP_small": 0.09332599392696851,
+ "AP_medium": 0.19100789774430668,
+ "AP_large": 0.4100378009114505,
+ "AR500": 0.4304760197041702,
+ "AP_person": 0.25036341360922654,
+ "AP_bicycle": 0.1955089234235821,
+ "AP_car": 0.370365907185769,
+ "AP_van": 0.25087918108053436,
+ "AP_truck": 0.2648080723289517,
+ "AP_tricycle": 0.20308094086495265,
+ "AP_bus": 0.07348992088631381,
+ "AP_motor": 0.11002827269159826,
+ "ms_per_img": 52.117176000001564,
+ "FPS": 19.187532340585186,
+ "train_min": 37.62010167439779,
+ "rpn_recall50": 0.739412057797708,
+ "rpn_recall70": 0.5220063112439794,
+ "det_recall50": 0.739412057797708,
+ "det_recall50_conf03": 0.6771300448430493,
+ "proposals_per_img": 1000.0
+}
