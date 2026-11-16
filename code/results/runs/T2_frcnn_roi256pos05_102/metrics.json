@@ -1,0 +1,80 @@
+{
+ "run_id": "T2_frcnn_roi256pos05_1024",
+ "RUN_ID": "T2_frcnn_roi256pos05_1024",
+ "family": "frcnn",
+ "CHANGE": "T1 + RoI sampling 256@0.5",
+ "anchors": [
+  8,
+  16,
+  32,
+  64,
+  128
+ ],
+ "rpn_pre": [
+  4000,
+  2000
+ ],
+ "rpn_post": [
+  4000,
+  2000
+ ],
+ "roi_sampler": [
+  256,
+  0.5
+ ],
+ "lr": 0.005,
+ "model_anchor_sizes": [
+  8,
+  16,
+  32,
+  64,
+  128
+ ],
+ "model_rpn_pre": {
+  "training": 4000,
+  "testing": 2000
+ },
+ "model_rpn_post": {
+  "training": 4000,
+  "testing": 2000
+ },
+ "model_roi_batch": 256,
+ "model_roi_pos": 0.5,
+ "protocol": {
+  "train_step": 4,
+  "val_step": 2,
+  "train_max_side": 1600,
+  "seed": 0,
+  "conf": 0.001,
+  "max_det": 500,
+  "min_size": 576,
+  "max_size": 1024,
+  "epochs": 3,
+  "batch": 4,
+  "workers": 3
+ },
+ "debug": false,
+ "mAP": 0.1858278101114867,
+ "AP50": 0.39469848006769354,
+ "AP75": 0.15036448711758935,
+ "AP_small": 0.08429343771621638,
+ "AP_medium": 0.17319616763698625,
+ "AP_large": 0.3558963788561188,
+ "AR500": 0.3715876360629279,
+ "AP_person": 0.25180184149187756,
+ "AP_bicycle": 0.1712885383780764,
+ "AP_car": 0.36755723638754006,
+ "AP_van": 0.19248492880161674,
+ "AP_truck": 0.20399731392597947,
+ "AP_tricycle": 0.1871340021984364,
+ "AP_bus": 0.015173285515175456,
+ "AP_motor": 0.09718533419319132,
+ "ms_per_img": 73.45867288333162,
+ "FPS": 13.61309646293526,
+ "train_min": 34.07245791753133,
+ "rpn_recall50": 0.8844045839561535,
+ "rpn_recall70": 0.5426008968609866,
+ "det_recall50": 0.833748546753031,
+ "det_recall50_conf03": 0.7518684603886397,
+ "proposals_per_img": 2000.0
+}
