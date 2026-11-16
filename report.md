@@ -5,17 +5,17 @@ course: Artificial Intelligence · UCU
 date: 2026-11-16
 ---
 
-<!--
-КАРКАС ЗВІТУ. Таблиці з числами й картинки вже на місці — це дані з наших експериментів.
-Коментарі в такому форматі на сайті не видно: це підказки, ЩО написати своїми словами (2–5 речень на пункт).
-Ліміт ~1500 слів тексту. Комірки «…» — t-SNE, заповнимо, коли дорахує ноутбук 11.
-Після написання тексту ці коментарі-підказки можна видалити.
--->
-
 ## 1. Task and final result
 
-<!-- Що прогнозуємо (8 класів, 48 тестових кліпів VisDrone2019-VID), метрика (COCO mAP@[.5:.95], ≤500 детекцій на кадр,
-ignore-регіони не штрафуються). Фінальна модель — WBF-ансамбль 4 детекторів: private LB 0.272 (public 0.329), бейслайн 0.222. -->
+Our main task is to detect subjects on a photo with road from the photos made by chinese drone I guess. Well. We have main 8 classes like: person, car, motorcycle, bicycle, bus, tricycle, van and truck. I have 48 test clips. And 56 for training and I was forced to do the models that detects these guys!
+
+As the metric I used COCO mAP@[0.50:0.95] up to 500 detections per frame. Ignore-zones didn't count.
+
+I compared 4 families of detections. And the best model is RT-DETR
+
+As result you can see private I got score 0.272 vs ~0.20 baseline
+
+The best result was achived uning ansamble of 4 models (WBF)
 
 ## 2. Data and preprocessing
 
@@ -33,9 +33,13 @@ ignore-регіони не штрафуються). Фінальна модел�
 ![IoU of the same object k frames apart](images/eda/temporal_iou.png)
 ![GT boxes and ignore regions](images/eda/gt_samples.png)
 
-<!-- Своїми словами: обробка ignore і чому сірий 114 (той самий колір, що padding у letterbox/mosaic); перевірка конвертації
-YOLO↔COCO (0 розбіжностей на 800 кадрах); ресайз (train ≤ 1600 px, мережа — imgsz), нормалізація, аугментації
-(Ultralytics за замовчуванням: mosaic, flip, HSV, scale 0.5; torchvision — horizontal flip). -->
+For ignore zones I used color 114, because it's default for Ultralytics - color padding. Using that our model knows that anything there. 
+If object more than a half inside the ignore-zone we won't conut it.
+
+After checking the convertation we saw 0 misleadings. You can see this in first notebook - EDA
+
+Because of memory I compressed images to <= 1600 px for train frames.
+And I took every 4th frame in the video, because each next frame, in average, 90% similar to it`s previous. And there is no losing of important data. In other hand each next 4th frame are, in average, 67% similar, I desided that it's OK and won't cause data erasing.
 
 ## 3. Validation protocol
 
@@ -47,7 +51,7 @@ YOLO↔COCO (0 розбіжностей на 800 кадрах); ресайз (tr
 
 ![A0 vs A1: validation mAP50 per epoch](images/a0_a1_map50.png)
 
-<!-- Поріг значущості: шум mAP між епохами на плато ≈ ±0.01, тому «приріст» < 1 п.п. не вважаємо доведеним. -->
+Noise between epochs is about +-1 pp, so smaller differences are not counted as improvements.
 
 ## 4. Detector families
 
@@ -63,10 +67,11 @@ Val = our validation (COCO mAP@[.5:.95]); FPS — batch 1, fp16, one T4.
 | A4 | + P2 head, 1280 | 0.195 | 0.397 | 0.108 | 0.354 | 38.6 | 0.250 | 0.200 |
 | A3 | YOLO11m, 1280 | **0.228** | **0.437** | **0.128** | 0.364 | 31.1 | 0.210 | 0.200 |
 
-<!-- 1) Як локації призначаються об'єктам без якорів: Task-Aligned Assigner у YOLO11 — для кожного GT обираються top-k точок
-усередині бокса за метрикою score^α · IoU^β; що це дає дрібним і щільним об'єктам. 2) Висновки: роздільна здатність — стабільний
-приріст; P2 підняв recall, але не AP_small; найбільший ефект — розмір моделі. 3) Діапазон: imgsz {1024, 1280}, голова {P3–P5, P2–P5},
-модель {s, m}. -->
+Each point of the grid by itself tries to predict the box. Assigner desides which point can determinate the assumed object using confidence intervals and IoU.
+
+I tried to change the size of frame from 1024p to 1280p and smaller grod P2 and the model from small to medium it's about amount of parameters.
+
+As a result 1280p transition gave me +0.9pp, P2 doesn't make any business. And model m gave +3.7pp. Therefore, size of the model influes the most.
 
 ### 4.2 Two-stage anchor-based — Faster R-CNN R50-FPN v2 (torchvision, 3 epochs)
 
@@ -98,12 +103,10 @@ Most frequent confusions (GT → prediction): van → car, bicycle → motor, mo
 ![Most class confusions](images/failure_T0_frcnn_1024_n_cls.png)
 ![Most background false positives](images/failure_T0_frcnn_1024_n_bg.png)
 
-<!-- RPN дає кандидатів (recall), друга стадія класифікує і уточнює бокси: recall@0.5 не падає, а впевнені детекції лишають 68 %.
-Три кейси помилок з картинок + правдоподібні причини: дрібні об'єкти в натовпі (<32 px, 1 клітинка P3), схожі класи згори
-(van/car, bicycle/motor з райдером), текстури фону. T1: дрібні якорі + більше proposals підняли recall RPN з 0.74 до 0.89,
-але друга стадія не впоралась з потоком нових кандидатів — хибних на фоні 20 % → 31 %, mAP −2.6 п.п.; AP_large впав (0.41 → 0.35),
-бо найбільший якір тепер 128 px. T2 (більше позитивів у RoI-батчі) не змінив mAP у межах шуму. Висновок: вузьке місце —
-не proposals, а класифікація другої стадії. -->
+RPN gaves candidates where object can be, in the next step model decides what class is it and clarifies the box.
+In T1 were smaller anchors and more candidates. The RPN began detectinf more objects (recall from 0.74 to 0.89) but the mAP dropped from 0.215 to 0.189. False detections in the backgroung increased from 20% to 31%. T2 not made any difference.
+
+As a result we have an issue with classification and detectiong small objects.
 
 ### 4.3 One-stage anchor-based — RetinaNet R50-FPN v2 (torchvision, 3 epochs)
 
@@ -113,10 +116,11 @@ Most frequent confusions (GT → prediction): van → car, bicycle → motor, mo
 | R1 | anchors 8–128 (×3 scales), from EDA | 0.062 | 0.186 | 0.031 | 0.112 | 25.5 |
 | R2 | R1 + CIoU loss | 0.060 | 0.184 | 0.032 | 0.113 | 25.9 |
 
-<!-- Без proposal-стадії детектор оцінює ~100k якорів на кадр, майже всі — фон: дисбаланс → focal loss. Чому зменшені якорі
-провалились (P3–P7 мають stride 8–128: якір 8 px на stride 8 і поріг IoU 0.5 дають мало позитивів, великим об'єктам бракує
-якорів — AP_large 0.32 → 0.11). Як виправити: зберегти великі масштаби, додати малі (ширший діапазон), або ATSS-призначення.
-CIoU не змінив результат. Порівняння з Faster R-CNN. -->
+Model does everything in single step without using candidates. It evaluates the set of template boxes.  Most of which represent backgroung. To prevent the model from being overwhelmed by background examples, focal loss is uded: it reduses the weigth of these examples.
+
+In R1 I replaved the 32–512 anchors with 8–128 anchors, and the mAP dropped from 0.152 to 0.062. Large objects began to be missed (AP_large 0.32 → 0.11) becayse there weren't more large anchors. CIoU in R2 made no difference. 
+
+As a result, small anchos shoud have been added to the large ones. RetinaNet is weaker than Faster R-CNN because it lacks a second stage that filters out the background.
 
 ### 4.4 Query-based — RT-DETR-l (Ultralytics, 10 epochs, same budget as YOLO)
 
@@ -127,9 +131,9 @@ CIoU не змінив результат. Порівняння з Faster R-CNN.
 
 ![RT-DETR vs YOLO: val mAP per epoch](images/detr_vs_yolo.png)
 
-<!-- Bipartite matching (Hungarian): кожен GT отримує рівно один предикт → дублікати штрафуються на тренуванні, NMS не потрібен.
-Що це змінює: повільніший старт навчання, зате немає придушення сусідів у щільних сценах. Крива: RT-DETR виходить на плато
-~5-та епоха і весь час вище YOLO; модель зійшлася в межах бюджету (коливання ±0.01). 500 queries: на val не краще — 300 вистачає. -->
+the model has 300 queries, each producing a single object. During training, exactly one query is assigned to object. via Hungarian matching. Consequently. the model doesn't produce duplicate detections and NMS is not required.
+
+The best model is a single, It consistenlty outperforms YOLO and reaches a plateau around the 5th epoch. Increasing the number of queries to 500 yielded no improvement, as there at most 180 obj in a single frame
 
 ### 4.5 Comparison of families (best run of each, val)
 
@@ -159,9 +163,7 @@ CIoU не змінив результат. Порівняння з Faster R-CNN.
 agrees with val (A3 ≈ A1 ≈ 0.20; I0 0.250 > Q0 0.249; E1 best). Checked and ruled out as causes: zero-height boxes (A3 without
 them: unchanged), handling of ignore regions (val re-scored three ways: ranking unchanged).
 
-<!-- Своїми словами: чому фінальні сабміти — E1 (найкращий на val) і Q1 (найкращий окремий на public); чому ансамбль різних
-сімейств (трансформер + anchor-free CNN + two-stage) дає більше, ніж два схожі RT-DETR (+0.5 проти +2.6 п.п.);
-що public виявився шумним, а наш val — надійнішим. -->
+WBF gave +2.6pp and 2 almost similar RT-DETR only +0.5pp, because different models fails on a different things.
 
 ## 6. Bonus tasks
 
@@ -174,21 +176,20 @@ averaged and blended with its own score: s' = (1 − α)·s + α·support. Grid 
 | best: w = 1, τ = 0.3, α = 0.2 | 0.189 | −0.15 pp |
 | worst: w = 2, τ = 0.5, α = 0.6 | 0.173 | −1.75 pp |
 
-<!-- Чому не допомогло: YOLO вже стабільний між кадрами, тож підтримка сусідів лише стискає розкид score і псує ранжування;
-хибні детекції на нерухомому фоні теж повторюються в сусідніх кадрах. Що спробувати далі: компенсація руху камери, трекер. -->
+YOLO is consistent, false detections weren't caused by lack of frames. It's because consistent YOLO always detects wrong in the same way.
 
 **Visualization.** W&B project (training curves, configs, validation predictions with boxes for every model):
-<!-- посилання на W&B -->. RoI-feature embeddings of Faster R-CNN (t-SNE):
 
-<!-- ![RoI embeddings](images/roi_tsne_T0.png) — після ноутбука 11, і 3–4 речення: що видно (кластери класів, де лежать пропущені,
-які класи змішуються) і який висновок. -->
+[wandb: hw2-ucu-2026](https://forge.coreweave.com/wandb/solchanykv-ukrainian-catholic-university/hw2-ucu-2026/workspace)
+
+![RoI embeddings](images/roi_tsne_T0.png)
+
+Model often confuses sinilar classes like motor and bicycle, van and care, and objects with size <= 16px in 90% of cases were ignored.
 
 **Custom architecture.** P2 detection head (stride 4) for YOLO11s: A0 → A2 (1024) +0.2 pp, A1 → A4 (1280) +0.4 pp mAP;
 recall +2…+3.6 pp, AP_small unchanged.
 
-<!-- Своїми словами: навіщо P2 (EDA: 17 % об'єктів < 16 px при 1024), чому не спрацювало (нові шари голови з нуля + 10 епох;
-у 10-px об'єкта мало інформації незалежно від кроку карти; більше хибних детекцій), що висновок: на цій задачі ємність моделі
-(s → m: +3.7 pp) важливіша за додатковий рівень FPN. -->
+Smaller drig didn't help. New layers trains on only 10 epochs, it's cheaper to increase the model.
 
 ## 7. Reproducibility
 
